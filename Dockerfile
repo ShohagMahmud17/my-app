@@ -1,19 +1,21 @@
-# Use the official Python image from the Docker Hub
-FROM python:3.9-slim
-
-# Set the working directory inside the container
+# Stage 1: Build Stage (Install Dependencies)
+FROM python:3.9 AS builder
 WORKDIR /app
 
-# Copy the requirements file and install the dependencies
+# Install dependencies in a temporary layer
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install -r requirements.txt
+# Stage 2: Production Stage (Final Slim Image)
+FROM python:3.9-slim
+WORKDIR /app
 
-# Copy the rest of the application files to the container
-COPY . .
+# Copy only necessary files from the builder stage
+COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY . /app
 
-# Expose the port the app will run on
+# Expose Flask Port
 EXPOSE 5000
 
-# Set the default command to run the app
+# Start Flask App
 CMD ["python", "run.py"]
