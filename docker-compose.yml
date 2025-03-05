@@ -1,32 +1,45 @@
 version: '3.8'
 
+services:
   db:
-    image: mysql:5.7
-    container_name: todo-db
+    image: mysql:latest
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: todolist
-    volumes:
-      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     networks:
-      - todo-network
-    services:
+      - app_network
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30sl
+
   app:
-    build: .
-    container_name: todo-app
+    build:
+      context: .
+      dockerfile: Dockerfile  # Uses Multi-Stage Build
     ports:
       - "5000:5000"
     depends_on:
-      - db
-    environment:
-      - FLASK_APP=run.py
-      - FLASK_ENV=development
+      db:
+        condition: service_healthy
     networks:
-      - todo-network
-
-networks:
-  todo-network:
-    driver: bridge
+      - app_network
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: attendance_db
 
 volumes:
-  mysql-data:
+  mysql_data:
+
+networks:
+  app_network:
+    driver: bridge
+ 
