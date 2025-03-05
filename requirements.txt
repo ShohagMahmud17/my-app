@@ -1,3 +1,4 @@
-Flask==2.2.2
+flask
+mysql-connector-python
 Flask-SQLAlchemy==2.5.1
 mysqlclient==2.1.0
