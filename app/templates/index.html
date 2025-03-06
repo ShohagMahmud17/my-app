@@ -3,21 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do App</title>
+    <title>Task Manager</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>To-Do List</h1>
-    <form method="POST" action="/add">
-        <input type="text" name="task" placeholder="New Task" required>
-        <button type="submit">Add Task</button>
-    </form>
+    <div class="container">
+        <h1>Task Manager</h1>
 
-    <ul>
-        {% for item in todo_items %}
-            <li>{{ item.task }} <a href="/delete/{{ item.id }}">Delete</a></li>
-        {% endfor %}
-    </ul>
+        <form action="/add" method="POST">
+            {{ form.hidden_tag() }}
+            <label for="task">Add Task:</label>
+            {{ form.task(class="task-input") }}
+            <button type="submit">Add</button>
+        </form>
+
+        <ul>
+            {% for task in tasks %}
+                <li>{{ task[1] }} <a href="/delete/{{ task[0] }}" class="delete-btn">Delete</a></li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
 
