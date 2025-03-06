@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: todolist
+      MYSQL_DATABASE: task_manager
     ports:
       - "3306:3306"
     networks:
@@ -30,10 +30,10 @@ services:
     networks:
       - app_network
     environment:
-      DB_HOST: db
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_NAME: attendance_db
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DB: task_manager
 
 volumes:
   mysql_data:
