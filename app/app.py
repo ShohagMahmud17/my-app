@@ -1,42 +1,53 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
+from flask_mysql import MySQL
+from flask_wtf import FlaskForm
+from wtforms import StringField
+from wtforms.validators import InputRequired
 
 app = Flask(__name__)
+app.secret_key = 'supersecretkey'
 
-# MySQL database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:password@db/todolist'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+# MySQL Configuration
+app.config['MYSQL_HOST'] = 'db'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'root'
+app.config['MYSQL_DB'] = 'task_manager'
 
-# To-Do Item Model
-class TodoItem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    task = db.Column(db.String(200), nullable=False)
+mysql = MySQL(app)
 
-    def __repr__(self):
-        return f'<TodoItem {self.id} - {self.task}>'
+# Task Model
+class TaskForm(FlaskForm):
+    task = StringField('Task', validators=[InputRequired()])
 
+# Routes
 @app.route('/')
 def index():
-    todo_items = TodoItem.query.all()
-    return render_template('index.html', todo_items=todo_items)
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM tasks')
+    tasks = cur.fetchall()
+    cur.close()
+    return render_template('index.html', tasks=tasks)
 
 @app.route('/add', methods=['POST'])
 def add_task():
-    task = request.form.get('task')
-    if task:
-        new_task = TodoItem(task=task)
-        db.session.add(new_task)
-        db.session.commit()
-    return redirect(url_for('index'))
+    form = TaskForm(request.form)
+    if form.validate():
+        task = form.task.data
+        cur = mysql.connection.cursor()
+        cur.execute('INSERT INTO tasks (task) VALUES (%s)', (task,))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('index'))
+    return render_template('index.html', form=form)
 
 @app.route('/delete/<int:id>')
 def delete_task(id):
-    task = TodoItem.query.get(id)
-    if task:
-        db.session.delete(task)
-        db.session.commit()
+    cur = mysql.connection.cursor()
+    cur.execute('DELETE FROM tasks WHERE id = %s', (id,))
+    mysql.connection.commit()
+    cur.close()
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=5000)
+
