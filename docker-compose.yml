@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: mysql:latest
+    image: mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -22,6 +22,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile  # Uses Multi-Stage Build
+    restart: on-failure
     ports:
       - "5000:5000"
     depends_on:
