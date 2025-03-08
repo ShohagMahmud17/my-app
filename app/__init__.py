@@ -1,5 +1,5 @@
 from flask import Flask
-from app.database import init_db
+from app.task_manaager import init_db
 
 app = Flask(__name__)
 
