@@ -3,6 +3,7 @@ from flask_mysql import MySQL
 from flask_wtf import FlaskForm
 from wtforms import StringField
 from wtforms.validators import InputRequired
+from app.models import init_db  # Import init_db here
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -14,6 +15,9 @@ app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'task_manager'
 
 mysql = MySQL(app)
+
+# Initialize the database
+init_db(mysql)  # Call init_db after creating `mysql` object
 
 # Task Model
 class TaskForm(FlaskForm):
@@ -50,4 +54,5 @@ def delete_task(id):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
 
