@@ -1,7 +1,4 @@
-from flask import Flask
-from models import init_db
-
-app = Flask(__name__)
+from app.models import init_db
 
 # Initialize database on startup
 init_db()
