@@ -22,8 +22,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile  # Uses Multi-Stage Build
-    restart: on-failure
-    ports:
+      ports:
       - "5000:5000"
     depends_on:
       db:
